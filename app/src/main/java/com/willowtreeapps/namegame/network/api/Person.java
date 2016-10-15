@@ -6,17 +6,22 @@ import android.os.Parcelable;
 public class Person implements Parcelable {
 
     private final String name;
+    private final String url;
 
-    public Person(String name) {
+    public Person(String name, String url) {
         this.name = name;
+        this.url = url;
     }
 
     public String getName() {
-        return name;
+        return name.replaceAll("2","");
     }
 
     public String getUrl() {
-        return "http://willowtreeapps.com/wp-content/uploads/2014/12/"+name.replaceAll(" ","_")+".jpg";
+        //hard coded url needs to be replaced with that is parsed
+        // from the website since they all vary now and dont
+        // share a common url prefix string
+        return url;
     }
 
     @Override
@@ -26,11 +31,14 @@ public class Person implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        // need to write both name AND url now
         dest.writeString(this.name);
+        dest.writeString(this.url);
     }
 
     protected Person(Parcel in) {
         this.name = in.readString();
+        this.url = in.readString();
     }
 
     public static final Creator<Person> CREATOR = new Creator<Person>() {

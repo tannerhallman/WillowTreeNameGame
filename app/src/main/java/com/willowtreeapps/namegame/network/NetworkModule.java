@@ -2,6 +2,7 @@ package com.willowtreeapps.namegame.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
@@ -25,6 +26,10 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * This module is used by dagger as instructions on how
+ * to build these network related objects
+ */
 @Module
 public class NetworkModule {
 
@@ -89,6 +94,12 @@ public class NetworkModule {
     public Picasso providePicasso(@NonNull Context context, @NonNull OkHttpClient client) {
         return new Picasso.Builder(context)
                 .downloader(new OkHttp3Downloader(client))
+                .listener(new Picasso.Listener() {
+                    @Override
+                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+                        exception.printStackTrace();
+                    }
+                })
                 .defaultBitmapConfig(Bitmap.Config.ARGB_8888)
                 .build();
     }

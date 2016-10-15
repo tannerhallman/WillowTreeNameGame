@@ -6,6 +6,11 @@ import android.support.annotation.NonNull;
 
 import com.willowtreeapps.namegame.network.NetworkModule;
 
+
+/**
+ * This class implements the parent Application and is
+ * used to handle the initial instantiation of the application.
+ */
 public class NameGameApplication extends Application {
 
     private ApplicationComponent component;
@@ -20,7 +25,7 @@ public class NameGameApplication extends Application {
         component = buildComponent();
     }
 
-    public ApplicationComponent component() {
+    public ApplicationComponent getComponent() {
         return component;
     }
 

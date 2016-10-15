@@ -1,5 +1,17 @@
 <resources>
-    <string name="app_name">Name Game</string>
+    <string name="app_name">The Name Game</string>
     <string name="question">Who is %s?</string>
     <string name="cdFace">A face</string>
+
+
+    <string name="gameModeClassic">Classic Mode</string>
+    <string name="gameModeMatt">Mat(t) Mode</string>
+    <string name="gameModeReverse">Reverse Mode</string>
+    <string name="gameModeCustom">Custom Mode</string>
+
+    <string name="placeholderTextShort">Text!</string>
+    <string name="placeholderTextLong">This is some placeholder text!</string>
+
+    <string name="score">score</string>
+    <string name="secs">secs</string>
 </resources>

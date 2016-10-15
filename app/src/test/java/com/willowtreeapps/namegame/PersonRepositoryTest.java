@@ -26,9 +26,12 @@ public class PersonRepositoryTest {
 
     static {
         PEOPLE = new ArrayList<>();
-        PEOPLE.add(new Person("Bill"));
-        PEOPLE.add(new Person("Pam"));
-        PEOPLE.add(new Person("Fred"));
+        PEOPLE.add(new Person("Bill",
+                "http://willowtreeapps.com/wp-content/uploads/2015/11/headshot_abby_cook-1.jpg"));
+        PEOPLE.add(new Person("Pam",
+                "http://willowtreeapps.com/wp-content/uploads/2015/11/headshot_abby_cook-1.jpg"));
+        PEOPLE.add(new Person("Fred",
+                "http://willowtreeapps.com/wp-content/uploads/2015/11/headshot_abby_cook-1.jpg"));
     }
 
     @Test

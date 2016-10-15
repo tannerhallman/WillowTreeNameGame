@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorPrimaryLight"
+    android:clickable="true"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:gravity="top|center_horizontal"
+        android:id="@+id/title"
+        android:text="@string/placeholderTextShort"
+        android:background="@drawable/roundedbutton"
+        android:textColor="@color/colorPrimaryLight"
+        android:padding="2dp"
+        android:layout_marginLeft="@dimen/name_game_title_text_margin"
+        android:layout_marginRight="@dimen/name_game_title_text_margin"
+        android:layout_marginTop="@dimen/name_game_title_text_margin" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/roundedbutton"
+        android:layout_margin="@dimen/name_game_title_text_margin"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:text="@string/placeholderTextShort"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:id="@+id/score"
+                android:textSize="25sp"
+                android:gravity="center_vertical|center_horizontal"
+                android:background="@drawable/roundedbutton"
+                android:textAlignment="textEnd"
+                android:layout_marginRight="5dp"
+                android:textColor="@color/colorPrimaryLight"
+                android:textStyle="normal|bold" />
+
+            <TextView
+                android:text="@string/score"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/textView"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:gravity="center_vertical|center_horizontal" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:text="-"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:id="@+id/averageTime"
+                android:textSize="30sp"
+                android:gravity="center_vertical|center_horizontal"
+                android:background="@drawable/roundedbutton"
+                android:textStyle="normal|bold"
+                android:textColor="@color/colorPrimaryLight"
+                android:textAlignment="textEnd" />
+
+            <TextView
+                android:text="@string/secs"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/textView2"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:gravity="center_vertical|center_horizontal" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:text="@string/placeholderTextLong"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="50dp"
+        android:id="@+id/question"
+        android:gravity="center_vertical|center_horizontal"
+        android:textSize="32sp" />
+
+    <LinearLayout
+        android:id="@+id/face_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:clickable="true"
+        android:layout_marginBottom="50dp"
+        android:layout_marginTop="50dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/topRow"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal|clip_vertical">
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="false"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:id="@+id/frame1"
+                android:clickable="false"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/cdFace"
+                    android:layout_gravity="center"
+                    android:duplicateParentState="true"
+                    android:id="@+id/face1"/>
+
+                <ProgressBar
+                    style="@android:style/Widget.Material.Light.ProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible"
+                    android:duplicateParentState="true"
+                    android:progressTint="@color/colorPrimaryDark"
+                    android:progressBackgroundTint="@color/colorPrimaryDark"
+                    android:foregroundTint="@color/colorPrimaryDark"
+                    android:indeterminateTint="@color/colorPrimaryDark" />
+            </FrameLayout>
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="false"
+                android:id="@+id/frame2"
+                android:layout_weight="1" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/cdFace"
+                    android:layout_gravity="center"
+                    android:duplicateParentState="true"
+                    android:id="@+id/face2"/>
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible"
+                    android:duplicateParentState="true"
+                    android:indeterminateTint="@color/colorPrimaryDark" />
+            </FrameLayout>
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="false"
+                android:id="@+id/frame3"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/cdFace"
+                    android:layout_gravity="center"
+                    android:duplicateParentState="true"
+                    android:id="@+id/face3"/>
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible"
+                    android:duplicateParentState="true"
+                    android:indeterminateTint="@color/colorPrimaryDark" />
+            </FrameLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/bottomrow"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical|center_horizontal">
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="false"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:id="@+id/frame4"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/cdFace"
+                    android:layout_gravity="center"
+                    android:duplicateParentState="true"
+                    android:id="@+id/face4"/>
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible"
+                    android:duplicateParentState="false"
+                    android:indeterminateTint="@color/colorPrimaryDark" />
+            </FrameLayout>
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="false"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:id="@+id/frame5"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/cdFace"
+                    android:layout_gravity="center"
+                    android:duplicateParentState="true"
+                    android:id="@+id/face5"/>
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible"
+                    android:duplicateParentState="true"
+                    android:indeterminateTint="@color/colorPrimaryDark" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.NameGameActivity"
+    android:background="@color/offWhite"
+    android:id="@+id/container"
+    android:measureAllChildren="true"
+    android:backgroundTint="@color/colorPrimaryLight">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:minHeight="153dp">
+
+        <TextView
+            android:text="@string/app_name"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:id="@+id/appTitleTV"
+            android:layout_centerInParent="false"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="81dp"
+            android:includeFontPadding="true"
+            android:padding="2dp"
+            android:layout_weight="1"
+            android:typeface="sans"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textStyle="normal|bold"
+            android:fontFamily="sans-serif" />
+
+        <ImageView
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:layout_below="@+id/appTitleTV"
+            android:layout_centerHorizontal="true"
+            app:srcCompat="@drawable/willowtree_logo"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="25dp"
+            android:layout_marginTop="40dp"
+            android:scaleX="1.5"
+            android:scaleY="1.5" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/imageView">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gameModeClassic"
+                android:id="@+id/classicButton"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:layout_gravity="center|center_horizontal"
+                android:layout_below="@+id/appTitleTV"
+                android:background="@drawable/roundedbutton"
+                android:padding="15dp"
+                android:layout_margin="10dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gameModeMatt"
+                android:id="@+id/mattButton"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:layout_gravity="center|center_horizontal"
+                android:layout_below="@id/classicButton"
+                android:background="@drawable/roundedbutton"
+                android:padding="15dp"
+                android:layout_margin="10dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gameModeReverse"
+                android:id="@+id/reverseButton"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:layout_gravity="center|center_horizontal"
+                android:layout_below="@+id/mattButton"
+                android:background="@drawable/roundedbutton"
+                android:padding="15dp"
+                android:layout_margin="10dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gameModeCustom"
+                android:id="@+id/customButton"
+                android:textColor="@color/colorPrimaryLight"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:layout_gravity="center|center_horizontal"
+                android:layout_below="@id/reverseButton"
+                android:background="@drawable/roundedbutton"
+                android:padding="15dp"
+                android:layout_margin="10dp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+</FrameLayout>

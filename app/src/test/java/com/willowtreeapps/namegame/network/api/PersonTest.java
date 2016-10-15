@@ -31,31 +31,34 @@ public class PersonTest {
     @Test
     public void testFromGson() throws Exception {
         String testString = "{\n" +
-                "name: \"Some Guy\"\n" +
+                "name: \"Some Guy\",\n" +
+                "url: \"www.someguyspicture.com\"\n" +
                 "}";
 
         Person person = gson.fromJson(testString, Person.class);
 
         assertEquals("Names should match", "Some Guy", person.getName());
-        assertEquals("Urls should be the name replaced with underscores",
-                "http://willowtreeapps.com/wp-content/uploads/2014/12/Some_Guy.jpg",
+        assertEquals("Urls should match",
+                "www.someguyspicture.com",
                 person.getUrl());
 
     }
 
     @Test
     public void testGetName() throws Exception {
-        Person person = new Person("Some Guy");
+        Person person = new Person("Some Guy",
+                "www.someguyspicture.com");
 
         assertEquals("Names should match", "Some Guy", person.getName());
     }
 
     @Test
     public void testGetUrl() throws Exception {
-        Person person = new Person("Some Guy");
+        Person person = new Person("Some Guy",
+                "www.someguyspicture.com");
 
-        assertEquals("Urls should be the name replaced with underscores",
-                "http://willowtreeapps.com/wp-content/uploads/2014/12/Some_Guy.jpg",
+        assertEquals("Url should be correct",
+                "www.someguyspicture.com",
                 person.getUrl());
     }
 
@@ -69,7 +72,7 @@ public class PersonTest {
         Parcel parcel = Parcel.obtain();
 
         //Write ourselves to the parcel
-        Person person = new Person("Some Guy");
+        Person person = new Person("Some Guy", "www.google.com");
         person.writeToParcel(parcel, 0);
 
         // After you're done with writing, you need to reset the parcel for reading:
@@ -79,8 +82,6 @@ public class PersonTest {
         person = Person.CREATOR.createFromParcel(parcel);
 
         assertEquals("Names should match", "Some Guy", person.getName());
-        assertEquals("Urls should be the name replaced with underscores",
-                "http://willowtreeapps.com/wp-content/uploads/2014/12/Some_Guy.jpg",
-                person.getUrl());
+        assertEquals("Url should match", "www.google.com", person.getUrl());
     }
 }

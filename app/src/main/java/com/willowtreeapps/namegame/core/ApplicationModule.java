@@ -13,6 +13,10 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+
+/**
+ * This module is created at runtime so context can be provided to Retrofit and OkHttp
+ */
 @Module
 class ApplicationModule {
 
