@@ -7,7 +7,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.willowtreeapps.namegame.ui.GamePlayFragment;
-import com.willowtreeapps.namegame.ui.NameGameActivity;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,18 +18,14 @@ import java.util.Stack;
 
 public class GameSession {
     private double averageTime = 0;
-    private int questionsAsked;
+    private int questionsAsked = 0;
     private int questionsCorrect = 0;
 
     private long countDownDuration = 30000; // 30 seconds before all hints are showed
     private CountDownTimer countdownTimer;
     private long millisUntilFinished = 0;
 
-    NameGameActivity.GameMode gameMode = NameGameActivity.getGameMode();
-
     private int currentRando;
-
-    private boolean timerRunning = false;
 
     private final String TAG = "GameSession";
 
@@ -54,8 +49,10 @@ public class GameSession {
         Log.i(TAG, "Starting a new game Session");
         this.faceCount = faceCount;
         this.gamePlayFragment = gamePlayFragment;
+        //this.setQuestionsAsked(1);
         instantiateTimer(countDownDuration);
     }
+
     /**
      * This method will instantiate the timer
      */
@@ -74,7 +71,7 @@ public class GameSession {
 
             @Override
             public void onFinish() {
-                timerRunning = false;
+                gamePlayFragment.outOfTime();
             }
         };
     }
@@ -85,7 +82,6 @@ public class GameSession {
     public void startTimer(){
         try{
             countdownTimer.start();
-            timerRunning = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -101,9 +97,11 @@ public class GameSession {
         } catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
+    /**
+     * This method will update the Average time.
+     */
     public void updateAverage() {
         double timeSpentInSeconds = (countDownDuration/1000) - (millisUntilFinished / 1000);
         if (getAverageTime() == 0){
@@ -116,6 +114,7 @@ public class GameSession {
 
     /**
      * This method will reset the state
+     * This is used for an orientation change
      */
     public void resetSessionState(){
         int next = random.nextInt(faceCount);
@@ -155,12 +154,14 @@ public class GameSession {
     }
 
     public void restoreSessionState() {
+        // resets all of the frames
         for (FrameLayout frameLayout : gamePlayFragment.getFrames()) {
             frameLayout.getChildAt(0).setAlpha(1f);
             frameLayout.getChildAt(0).setClickable(true);
             frameLayout.getChildAt(1).setVisibility(View.GONE);
         }
 
+        // fades faces that were previously faded
         for (int alreadyFadedPos : facesAlreadyFaded) {
             ImageView temp = (ImageView) gamePlayFragment.getFrames().get(alreadyFadedPos).getChildAt(0);
             temp.setAlpha(0.2f);
@@ -219,22 +220,6 @@ public class GameSession {
 
     public void setCountDownDuration(long countDownDuration) {
         this.countDownDuration = countDownDuration;
-    }
-
-    public CountDownTimer getCountdownTimer() {
-        return countdownTimer;
-    }
-
-    public void setCountdownTimer(CountDownTimer countdownTimer) {
-        this.countdownTimer = countdownTimer;
-    }
-
-    public NameGameActivity.GameMode getGameMode() {
-        return gameMode;
-    }
-
-    public void setGameMode(NameGameActivity.GameMode gameMode) {
-        this.gameMode = gameMode;
     }
 
     public int getCurrentRando() {

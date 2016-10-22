@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
@@ -85,19 +86,36 @@
                 android:layout_weight="1"
                 android:textSize="18sp"
                 android:gravity="center_vertical|center_horizontal" />
+
         </LinearLayout>
 
     </LinearLayout>
 
-    <TextView
-        android:text="@string/placeholderTextLong"
-        android:layout_width="match_parent"
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="50dp"
-        android:id="@+id/question"
-        android:gravity="center_vertical|center_horizontal"
-        android:textSize="25sp" />
+        android:layout_gravity="center_vertical|center_horizontal">
+
+        <TextView
+            android:text="@string/placeholderTextLong"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="50dp"
+            android:id="@+id/question"
+            android:gravity="center_vertical|center_horizontal"
+            android:textSize="25sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@mipmap/ic_launcher"
+            android:id="@+id/reverseFace"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_alignBottom="@+id/question"
+            android:layout_centerHorizontal="true"
+            android:visibility="invisible" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/face_container"
@@ -143,6 +161,16 @@
                     android:progressBackgroundTint="@color/colorPrimaryDark"
                     android:foregroundTint="@color/colorPrimaryDark"
                     android:indeterminateTint="@color/colorPrimaryDark" />
+
+                <TextView
+                    android:text="@string/placeholderTextLong"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/name1"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+                    android:visibility="invisible" />
             </FrameLayout>
             <FrameLayout
                 android:layout_width="wrap_content"
@@ -168,6 +196,15 @@
                     android:visibility="visible"
                     android:duplicateParentState="true"
                     android:indeterminateTint="@color/colorPrimaryDark" />
+                <TextView
+                    android:text="@string/placeholderTextLong"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/name2"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+                    android:visibility="invisible" />
             </FrameLayout>
 
             <FrameLayout
@@ -194,6 +231,15 @@
                     android:visibility="visible"
                     android:duplicateParentState="true"
                     android:indeterminateTint="@color/colorPrimaryDark" />
+                <TextView
+                    android:text="@string/placeholderTextLong"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/name3"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+                    android:visibility="invisible" />
             </FrameLayout>
 
             <FrameLayout
@@ -221,6 +267,15 @@
                     android:visibility="visible"
                     android:duplicateParentState="false"
                     android:indeterminateTint="@color/colorPrimaryDark" />
+                <TextView
+                    android:text="@string/placeholderTextLong"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/name4"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+                    android:visibility="invisible" />
             </FrameLayout>
 
             <FrameLayout
@@ -248,6 +303,15 @@
                     android:visibility="visible"
                     android:duplicateParentState="true"
                     android:indeterminateTint="@color/colorPrimaryDark" />
+                <TextView
+                    android:text="@string/placeholderTextLong"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/name5"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+                    android:visibility="invisible" />
             </FrameLayout>
 
         </LinearLayout>

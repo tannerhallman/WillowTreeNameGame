@@ -13,5 +13,5 @@
     <string name="placeholderTextLong">This is some placeholder text!</string>
 
     <string name="score">score</string>
-    <string name="secs">secs</string>
+    <string name="secs">avg sec</string>
 </resources>

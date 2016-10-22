@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -119,9 +120,8 @@ public class GamePlayFragment extends Fragment {
         imageSize = (int) Ui.convertDpToPixel(100, getContext());
 
         if (savedInstanceState == null){
-            Log.i(TAG, " 564 savedInstanceState was null");
+            Log.i(TAG, "savedInstanceState was null");
             repo.register(personRepoListener);
-
         } else {
             Log.i(TAG, "savedInstanceState was not null");
         }
@@ -162,10 +162,6 @@ public class GamePlayFragment extends Fragment {
         return view;
     }
 
-
-
-
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Log.i(TAG, "onViewCreated called");
@@ -192,10 +188,6 @@ public class GamePlayFragment extends Fragment {
                     title.setText("Willow Tree Name GameSession");
                     break;
             }
-            //Hide the views until data loads
-            //title.setAlpha(0);
-
-            //setup both of the rows of imageviews
 
         } else {
             // restore savedState
@@ -406,14 +398,16 @@ public class GamePlayFragment extends Fragment {
      */
     public void loadNewContent(Boolean restoringState){
         Log.i(TAG,  "loadNewContent() with state " + restoringState.toString());
-        if (!restoringState) personsInQuestion.clear();
+        if (!restoringState) {
+            personsInQuestion.clear();
+            gameSession.setQuestionsAsked(gameSession.getQuestionsAsked() + 1);
+        }
 
         try {
-            Log.i(TAG, "setting the views in loadNewContent");
             averageTime.setText(formatter.format(gameSession.getAverageTime()));
-            score.setText(Integer.toString(gameSession.getQuestionsCorrect()));
+            score.setText(Integer.toString(gameSession.getQuestionsCorrect()) + " / "
+                + Integer.toString(gameSession.getQuestionsAsked()));
 
-            //Log.i(TAG, " fragments in load new content" + getActivity().getSupportFragmentManager().getFragments().toString());
         } catch (Exception e){
             Log.e(TAG, e.getStackTrace().toString());
         }
@@ -433,7 +427,7 @@ public class GamePlayFragment extends Fragment {
                     gameSession.restoreSessionState();
                 }
 
-                Log.i(TAG, "Person in question " + personsInQuestion.get(gameSession.getCurrentRando()).getName());
+                //Log.i(TAG, "Person in question " + personsInQuestion.get(gameSession.getCurrentRando()).getName());
                 question.setText("Who is " + personsInQuestion.get(gameSession.getCurrentRando()).getName() + "?");
 
                 break;
@@ -446,6 +440,9 @@ public class GamePlayFragment extends Fragment {
 
                 if (!restoringState) personsInQuestion = listRandomizer.pickN(mattOnly, faceCount);
 
+                frames.clear();
+                setupTopRow();
+                if(bottomRow != null) setUpBottmRow();
                 setImages(frames, personsInQuestion);
 
                 if (!restoringState){ // restoringState = false
@@ -453,6 +450,10 @@ public class GamePlayFragment extends Fragment {
                 } else { // restoringState = true
                     gameSession.restoreSessionState();
                 }
+
+                //Log.i(TAG, "Person in question " + personsInQuestion.get(gameSession.getCurrentRando()).getName());
+                question.setText("Who is " + personsInQuestion.get(gameSession.getCurrentRando()).getName() + "?");
+
                 break;
             case REVERSE:
                 Log.i(TAG, "REVERSE NOT YET IMPELMTEND");
@@ -470,17 +471,25 @@ public class GamePlayFragment extends Fragment {
      * @param person The person that was selected
      */
     private void onPersonSelected(@NonNull View view, @NonNull Person person) {
-        //TODO evaluate whether it was the right person and make an action based on that
         if (person.getName().equals(personsInQuestion.get(gameSession.getCurrentRando()).getName())){
-            Log.i(TAG, "Correct! " + person.getName());
+
             gameSession.setQuestionsCorrect(gameSession.getQuestionsCorrect() + 1);
-            gameSession.cancelTimer();
-            gameSession.updateAverage();
-            loadNewContent(false);
+            Toast.makeText(getActivity(), "Correct!", Toast.LENGTH_SHORT).show();
+
         } else {
-            Log.i(TAG, "selected the wrong person " + person.getName());
-            // not here it gets changed Log.i(TAG, "Person in question " + personsInQuestion.get(gameSession.getCurrentRando()).getName());
+            //Log.i(TAG, "selected the wrong person " + person.getName());
+            Toast.makeText(getActivity(), "Incorrect!", Toast.LENGTH_SHORT).show();
         }
+        gameSession.cancelTimer();
+        gameSession.updateAverage();
+        loadNewContent(false);
+    }
+
+    public void outOfTime() {
+        Toast.makeText(getActivity(), "Out of time!", Toast.LENGTH_SHORT).show();
+        gameSession.cancelTimer();
+        gameSession.updateAverage();
+        loadNewContent(false);
     }
 
     /**
@@ -539,7 +548,6 @@ public class GamePlayFragment extends Fragment {
     private class MasterClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "15. Frames size " + frames.size());
             switch (v.getId()) {
                 case R.id.face1:
                     onPersonSelected(v, personsInQuestion.get(0));
@@ -566,7 +574,7 @@ public class GamePlayFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.i(TAG, "onSaveInstanceState called");
+        //Log.i(TAG, "onSaveInstanceState called");
         /* If onDestroyView() is called first, we can use the previously savedState but we can't call saveState() anymore */
         /* If onSaveInstanceState() is called first, we don't have savedState, so we need to call saveState() */
         /* => (?:) operator inevitable! */
@@ -576,14 +584,14 @@ public class GamePlayFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        Log.i(TAG, "onDestroyView called... calling saveState()");
+        //Log.i(TAG, "onDestroyView called... calling saveState()");
         savedState = saveState();
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "OnDestory Called");
+        //Log.i(TAG, "OnDestory Called");
         repo.unregister(personRepoListener);
         gameSession.cancelTimer();
 
