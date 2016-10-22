@@ -1,11 +1,9 @@
 package com.willowtreeapps.namegame.ui;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,15 +31,17 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Optional;
 
 public class GamePlayFragment extends Fragment {
     private static final Interpolator OVERSHOOT = new OvershootInterpolator();
-    private static final String FRAG_TAG = "GamePlayFragmentTag";
+    private static final String TAG = "Game Tag";
 
     @Inject ListRandomizer listRandomizer;
     @Inject Picasso picasso;
@@ -53,20 +53,23 @@ public class GamePlayFragment extends Fragment {
     // contains 2 horizontal linear layouts [1 toprow and 1 bottomrow]
     @BindView(R.id.face_container) LinearLayout faceContainer;
     @BindView(R.id.topRow) LinearLayout topRow;
-    @BindView(R.id.bottomrow) LinearLayout bottomRow;
+    @Nullable @BindView(R.id.bottomrow) LinearLayout bottomRow;
     @BindView(R.id.score) TextView score;
     @BindView(R.id.averageTime) TextView averageTime;
 
+
+    private final int classicFaceCount = 5;
+    private final int reverseFaceCount = 1;
 
     //The amount of faces that are displayed (Should correspond to the amount of FrameLayouts)
     private int faceCount;
 
     // A list of the framelayouts that contain both the progress bar and the imageview
-    private List<FrameLayout> frames = new ArrayList<>(faceCount);
+    private List<FrameLayout> frames;
     // A list of the allPersons that are currently displayed
-    private List<Person> personsInQuestion = new ArrayList<>(faceCount);
+    private List<Person> personsInQuestion;
     // A list of *all* of the allPersons that have been loaded by the API
-    private List<Person> allPersons = new ArrayList<>();
+    private List<Person> allPersons;
     private List<Person> mattOnly;
 
     // A state of the game
@@ -75,9 +78,11 @@ public class GamePlayFragment extends Fragment {
     // the size of the images
     int imageSize;
 
-    NameGameActivity.GameMode mode;
+    private NumberFormat formatter;
 
-    private NumberFormat formatter = new DecimalFormat("#0.00");
+    private Bundle savedState;
+
+    private final String savedGamePlayString = "savedGame";
 
 
     // Create a reference to the listener so that it can be used to unsubscribe in onDestory
@@ -85,138 +90,131 @@ public class GamePlayFragment extends Fragment {
             @Override
             public void onLoadFinished(@NonNull List<Person> people) {
                 GamePlayFragment.this.allPersons = people;
-                loadNewContent();
+                if (savedState == null) {
+                    loadNewContent(false);
+                } else {
+                    Log.i(TAG, "person repo listener got called but savedState = null");
+                }
             }
 
             @Override
             public void onError(@NonNull Throwable error) {
-                Log.e(FRAG_TAG, error.getMessage());
+                Log.e(TAG, error.getMessage());
             }
         };
 
+    // TODO: Fix the restoreSession for Matt, Reverse, Custom
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        //TODO: Implement horizontal viewing with the savedInstanceState
+        Log.i(TAG, "onCreate Called");
         super.onCreate(savedInstanceState);
         NameGameApplication.get(getActivity()).getComponent().inject(this);
+
+        frames = new ArrayList<>(faceCount);
+        personsInQuestion = new ArrayList<>(faceCount);
+        allPersons = new ArrayList<>();
+        formatter = new DecimalFormat("#0.00");
+        savedState = null;
+        imageSize = (int) Ui.convertDpToPixel(100, getContext());
+
         if (savedInstanceState == null){
-            imageSize = (int) Ui.convertDpToPixel(100, getContext());
+            Log.i(TAG, " 564 savedInstanceState was null");
             repo.register(personRepoListener);
+
+        } else {
+            Log.i(TAG, "savedInstanceState was not null");
         }
 
+        Log.i(TAG, getActivity().getSupportFragmentManager().getFragments().toString());
+
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            Log.i(TAG, "onActivityCreated() restore true ");
+            restoreState(savedInstanceState);
+        } else {
+            Log.i(TAG, "onActivityCreated() restore false ");
+        }
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.i(TAG, "onCreateViewCalled & restoring state");
         View view = inflater.inflate(R.layout.game_play_fragment, container, false);
         ButterKnife.bind(this, view);
+
+        /* If the Fragment was destroyed inbetween (screen rotation), we need to recover the savedState first */
+        /* However, if it was not, it stays in the instance from the last onDestroyView() and we don't want to overwrite it */
+        if(savedInstanceState != null && savedState == null) {
+            savedState = savedInstanceState.getBundle(savedGamePlayString);
+        }
+        if(savedState != null) {
+            restoreState(savedInstanceState);
+        }
+        savedState = null;
+
         return view;
     }
 
+
+
+
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        mode = NameGameActivity.getGameMode();
-        switch (mode) {
-            case CLASSIC:
-                faceCount = 5;
-                title.setText(R.string.gameModeClassic);
-                break;
-            case MATT:
-                mattOnly = new ArrayList<>();
-                faceCount = 5;
-                title.setText(R.string.gameModeMatt);
-                break;
-            case REVERSE:
-                faceCount = 1;
-                title.setText(R.string.gameModeReverse);
-                break;
-            case CUSTOM:
-                title.setText(R.string.gameModeCustom);
-                break;
-            default:
-                faceCount = 5;
-                title.setText("Willow Tree Name GameSession");
-                break;
-        }
-        //Hide the views until data loads
-        //title.setAlpha(0);
+        Log.i(TAG, "onViewCreated called");
+        if (savedInstanceState == null) {
+            NameGameActivity.GameMode mode = NameGameActivity.getGameMode();
+            Log.i(TAG, "savedInstanceState was null");
 
-        //setup both of the rows of imageviews
-        setupViewRows();
-        gameSession = new GameSession(faceCount, this);
-    }
+            title.setText(getTitleText(mode));
+            switch (mode) {
+                case CLASSIC:
+                    faceCount = classicFaceCount;
+                    break;
+                case MATT:
+                    mattOnly = new ArrayList<>();
+                    faceCount = classicFaceCount;
+                    break;
+                case REVERSE:
+                    faceCount = reverseFaceCount;
+                    break;
+                case CUSTOM:
+                    break;
+                default:
+                    faceCount = classicFaceCount;
+                    title.setText("Willow Tree Name GameSession");
+                    break;
+            }
+            //Hide the views until data loads
+            //title.setAlpha(0);
 
-    /**
-     * An umbrella method that is used to load new content into imageviews and
-     *  load new questions
-     */
-    public void loadNewContent(){
-        personsInQuestion.clear();
+            //setup both of the rows of imageviews
 
-        averageTime.setText(formatter.format(gameSession.getAverageTime()));
-        score.setText(Integer.toString(gameSession.getQuestionsCorrect()));
-
-        switch (mode) {
-            case CLASSIC :
-                personsInQuestion = listRandomizer.pickN(allPersons, faceCount);
-                setImages(frames, personsInQuestion);
-                question.setText("Who is " + personsInQuestion.get(gameSession.getCurrentRando()).getName() + "?");
-
-                // 5 Log.i(FRAG_TAG, "Size of frames when passing to resetSessionState " + Integer.toString(frames.size()));
-                gameSession.resetSessionState();
-
-                break;
-
-            case MATT:
-                for (Person p : allPersons){
-                    if (p.getName().substring(0,3).equalsIgnoreCase("Mat"))
-                        mattOnly.add(p);
-                }
-
-                personsInQuestion = listRandomizer.pickN(mattOnly, faceCount);
-                setImages(frames, personsInQuestion);
-
-                gameSession.resetSessionState();
-                break;
-            case REVERSE:
-                faceCount = 1;
-
-            default:
-                Log.e(FRAG_TAG, "Have not implemented any other game types");
-                break;
-        }
-
-
-
-    }
-    /**
-     * A method to handle when a person is selected
-     *
-     * @param view   The view that was selected
-     * @param person The person that was selected
-     */
-    private void onPersonSelected(@NonNull View view, @NonNull Person person) {
-        //TODO evaluate whether it was the right person and make an action based on that
-        if (person.equals(personsInQuestion.get(gameSession.getCurrentRando()))){
-            Log.i(FRAG_TAG, "Correct!");
-            gameSession.setQuestionsCorrect(gameSession.getQuestionsCorrect() + 1);
-            gameSession.cancelTimer();
-            gameSession.updateAverage();
-            loadNewContent();
         } else {
-            Log.i(FRAG_TAG, "selected the wrong person " + person.getName());
+            // restore savedState
+            Log.i(TAG, "savedInstanceState was not null & Restoring state form onViewCreated call");
         }
+
+        gameSession = new GameSession(faceCount, this);
+        setupTopRow();
+        if (bottomRow != null) setUpBottmRow();
     }
 
     /**
      * A method to initially setup the rows of ImageViews and Progressbars so that
      * images can be loaded into them.
      */
-    private void setupViewRows() {
-        int toprowcount = topRow.getChildCount();
-        int bottomrowcount = bottomRow.getChildCount();
-
+    private void setupTopRow() {
+        try {
+            int toprowcount = topRow.getChildCount();
+            Log.i(TAG, "Top row count" + Integer.toString(toprowcount));
             for (int j = 0; j < toprowcount; j++){
                 FrameLayout frame = (FrameLayout) topRow.getChildAt(j);
                 //frame.setTag("FrameLayout" + Integer.toString(j));
@@ -234,12 +232,19 @@ public class GamePlayFragment extends Fragment {
                 face.setScaleX(0);
                 face.setScaleY(0);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+    }
+
+    @Optional
+    private void setUpBottmRow(){
+        try {
+            int bottomrowcount = bottomRow.getChildCount();
             for (int j = 0; j < bottomrowcount; j++){
                 FrameLayout frame = (FrameLayout) bottomRow.getChildAt(j);
-                //frame.setTag("FrameLayout" + Integer.toString(j));
                 ImageView face = (ImageView) frame.getChildAt(0);
-                //face.setTag("face" + Integer.toString(j));
                 face.setVisibility(View.VISIBLE);
                 face.setOnClickListener(new MasterClickListener());
 
@@ -250,14 +255,238 @@ public class GamePlayFragment extends Fragment {
                 face.setScaleX(0);
                 face.setScaleY(0);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int getFaceCount(NameGameActivity.GameMode mode){
+        switch (mode) {
+            case CLASSIC:
+                return classicFaceCount;
+            case MATT:
+                return classicFaceCount;
+            case REVERSE:
+                return reverseFaceCount;
+            case CUSTOM:
+                return classicFaceCount;
+            default:
+                return classicFaceCount;
+        }
+    }
+
+    private String getTitleText(NameGameActivity.GameMode mode){
+        switch (mode) {
+            case CLASSIC:
+                return getResources().getString(R.string.gameModeClassic);
+            case MATT:
+                return getResources().getString(R.string.gameModeMatt);
+            case REVERSE:
+                return getResources().getString(R.string.gameModeReverse);
+            case CUSTOM:
+                return getResources().getString(R.string.gameModeCustom);
+            default:
+                return "Willow Tree Name Game";
+        }
+    }
+
+    private Bundle saveState() { /* called either from onDestroyView() or onSaveInstanceState() */
+        Log.i(TAG, "saveState() called ");
+        Bundle state = new Bundle();
+        state.putDouble("averageTime", gameSession.getAverageTime());
+        state.putInt("questionsAsked", gameSession.getQuestionsAsked());
+        state.putInt("questionsCorrect", gameSession.getQuestionsCorrect());
+        state.putLong("countDownDuration", gameSession.getCountDownDuration());
+        state.putLong("millisUntilFinished", gameSession.getMillisUntilFinished());
+        state.putInt("currentRando", gameSession.getCurrentRando());
+
+        Stack<Integer> stackToSave = gameSession.getFacesNotYetFaded();
+        int[] arrayOfStack = new int[stackToSave.size()];
+
+        // want to maintain order so that loading on stack is natural
+        for (int x = arrayOfStack.length - 1; x >= 0; x--){
+            arrayOfStack[x] = stackToSave.pop();
+        }
+        state.putIntArray("arrayOfStack", arrayOfStack);
+
+        state.putIntegerArrayList("facesAlreadyFaded", gameSession.getFacesAlreadyFaded());
+
+        // save all the persons
+        ArrayList<String> personsNames = new ArrayList<>(allPersons.size());
+        ArrayList<String> personsUrls = new ArrayList<>(allPersons.size());
+
+        for (Person p : allPersons){
+            personsNames.add(p.getName());
+            personsUrls.add(p.getUrl());
+        }
+        state.putStringArrayList("personsNames", personsNames);
+        state.putStringArrayList("personsUrls", personsUrls);
+
+        // save the current chosen persons
+        ArrayList<String> personsInQuestionNames = new ArrayList<>(personsInQuestion.size());
+        ArrayList<String> personsInQuestionUrls = new ArrayList<>(personsInQuestion.size());
+
+        for (Person p : personsInQuestion){
+            personsInQuestionNames.add(p.getName());
+            personsInQuestionUrls.add(p.getUrl());
+        }
+        state.putStringArrayList("personsInQuestionNames", personsInQuestionNames);
+        state.putStringArrayList("personsInQuestionUrls", personsInQuestionUrls);
+
+        return state;
+    }
+
+    private void restoreState(Bundle savedInstanceState){
+        Log.i(TAG, " restoreState called");
+        /* If the Fragment was destroyed inbetween (screen rotation), we need to recover the savedState first */
+        /* However, if it was not, it stays in the instance from the last onDestroyView() and we don't want to overwrite it */
+        if(savedInstanceState != null && savedState == null) {
+            Log.i(TAG, "restoreState() savedState and savedInstanceState == null");
+            savedState = savedInstanceState.getBundle(savedGamePlayString);
+        }
+        if(savedState != null) {
+            Log.i(TAG, "restoreState() getting components and restoring them ");
+
+            NameGameActivity.GameMode mode = NameGameActivity.getGameMode();
+            if(title != null) title.setText(getTitleText(mode));
+            faceCount = getFaceCount(mode);
+            gameSession = new GameSession(faceCount, this);
+
+            gameSession.setAverageTime(savedState.getDouble("averageTime"));
+            gameSession.setQuestionsAsked(savedState.getInt("questionsAsked"));
+            gameSession.setQuestionsCorrect(savedState.getInt("questionsCorrect"));
+            gameSession.setCountDownDuration(savedState.getLong("countDownDuration"));
+            gameSession.setMillisUntilFinished(savedState.getLong("millisUntilFinished"));
+            gameSession.setCurrentRando(savedState.getInt("currentRando"));
+
+            Stack<Integer> stackToLoad = new Stack<>();
+            int[] arrayOfStack = savedState.getIntArray("arrayOfStack");
+
+            // loading onto stack is natural because of the way stack was unloaded
+            for (int x = arrayOfStack.length-1; x >= 0; x--) {
+                stackToLoad.push(arrayOfStack[x]);
+            }
+            gameSession.setFacesNotYetFaded(stackToLoad);
+            gameSession.setFacesAlreadyFaded(savedState.getIntegerArrayList("facesAlreadyFaded"));
+
+            ArrayList<String> personsNames = savedState.getStringArrayList("personsNames");
+            ArrayList<String> personsUrls = savedState.getStringArrayList("personsUrls");
+            ArrayList<Person> allPersons = new ArrayList<>();
+
+            for (int n = 0; n < personsNames.size(); n++){
+                allPersons.add(new Person(personsNames.get(n),
+                        personsUrls.get(n)));
+            }
+            setAllPersons(allPersons);
+
+            // restore the current chosen faces
+            ArrayList<String> personsInQuestionNames = savedState.getStringArrayList("personsInQuestionNames");
+            ArrayList<String> personsInQuestionUrls = savedState.getStringArrayList("personsInQuestionUrls");
+            ArrayList<Person> personsInQuestion = new ArrayList<>();
+
+            for (int n = 0; n < personsInQuestionNames.size(); n++){
+                personsInQuestion.add(new Person(personsInQuestionNames.get(n),
+                        personsInQuestionUrls.get(n)));
+            }
+            Log.i(TAG, personsInQuestion.toString());
+
+            setPersonsInQuestion(personsInQuestion);
+
+            gameSession.instantiateTimer(gameSession.getMillisUntilFinished());
+            loadNewContent(true);
+        }
+        // release the savedState
+        savedState = null;
+
+    }
+
+    /**
+     * An umbrella method that is used to load new content into imageviews and
+     *  load new questions
+     */
+    public void loadNewContent(Boolean restoringState){
+        Log.i(TAG,  "loadNewContent() with state " + restoringState.toString());
+        if (!restoringState) personsInQuestion.clear();
+
+        try {
+            Log.i(TAG, "setting the views in loadNewContent");
+            averageTime.setText(formatter.format(gameSession.getAverageTime()));
+            score.setText(Integer.toString(gameSession.getQuestionsCorrect()));
+
+            //Log.i(TAG, " fragments in load new content" + getActivity().getSupportFragmentManager().getFragments().toString());
+        } catch (Exception e){
+            Log.e(TAG, e.getStackTrace().toString());
+        }
+
+        switch (NameGameActivity.getGameMode()) {
+            case CLASSIC :
+                if (!restoringState) personsInQuestion = listRandomizer.pickN(allPersons, faceCount);
+
+                frames.clear();
+                setupTopRow();
+                if(bottomRow != null) setUpBottmRow();
+                setImages(frames, personsInQuestion);
+
+                if (!restoringState){ // restoringState = false
+                    gameSession.resetSessionState();
+                } else { // restoringState = true
+                    gameSession.restoreSessionState();
+                }
+
+                Log.i(TAG, "Person in question " + personsInQuestion.get(gameSession.getCurrentRando()).getName());
+                question.setText("Who is " + personsInQuestion.get(gameSession.getCurrentRando()).getName() + "?");
+
+                break;
+
+            case MATT:
+                for (Person p : allPersons){
+                    if (p.getName().substring(0,3).equalsIgnoreCase("Mat"))
+                        mattOnly.add(p);
+                }
+
+                if (!restoringState) personsInQuestion = listRandomizer.pickN(mattOnly, faceCount);
+
+                setImages(frames, personsInQuestion);
+
+                if (!restoringState){ // restoringState = false
+                    gameSession.resetSessionState();
+                } else { // restoringState = true
+                    gameSession.restoreSessionState();
+                }
+                break;
+            case REVERSE:
+                Log.i(TAG, "REVERSE NOT YET IMPELMTEND");
+                break;
+
+            default:
+                Log.e(TAG, "Have not implemented any other game types");
+                break;
+        }
+    }
+    /**
+     * A method to handle when a person is selected
+     *
+     * @param view   The view that was selected
+     * @param person The person that was selected
+     */
+    private void onPersonSelected(@NonNull View view, @NonNull Person person) {
+        //TODO evaluate whether it was the right person and make an action based on that
+        if (person.getName().equals(personsInQuestion.get(gameSession.getCurrentRando()).getName())){
+            Log.i(TAG, "Correct! " + person.getName());
+            gameSession.setQuestionsCorrect(gameSession.getQuestionsCorrect() + 1);
+            gameSession.cancelTimer();
+            gameSession.updateAverage();
+            loadNewContent(false);
+        } else {
+            Log.i(TAG, "selected the wrong person " + person.getName());
+            // not here it gets changed Log.i(TAG, "Person in question " + personsInQuestion.get(gameSession.getCurrentRando()).getName());
+        }
     }
 
     /**
      * A method for setting the images from allPersons into the imageviews
      */
     private void setImages(List<FrameLayout> frames, List<Person> people) {
-        //Log.i(FRAG_TAG, "Correct Answer [" + Integer.toString(gameSession.getCurrentRando())
-                //+ " " + people.get(gameSession.getCurrentRando()).getName());
         for (int i = 0; i < frames.size(); i++) {
             final FrameLayout frame = frames.get(i);
             // In FrameLayout: index 0 = ImageView, index 1 = ProgressView
@@ -266,7 +495,9 @@ public class GamePlayFragment extends Fragment {
 
             progressBar.setVisibility(View.VISIBLE);
 
-            //Log.i(FRAG_TAG, "Loading " + people.get(i).getName().toString() + " " + people.get(i).getUrl().toString());
+            Log.i(TAG, "size of People "  + people.size());
+            Log.i(TAG, "value of i " + Integer.toString(i));
+            Log.i(TAG, "Loading (" + Integer.toString(i) + ")" +  people.get(i).getName().toString());
 
             picasso.load(people.get(i).getUrl())
                     .resize(imageSize, imageSize)
@@ -274,16 +505,15 @@ public class GamePlayFragment extends Fragment {
                     .into(face, new Callback() {
                         @Override
                         public void onSuccess() {
-                            progressBar.setVisibility(View.INVISIBLE);
+                            progressBar.setVisibility(View.GONE);
                             face.setVisibility(View.VISIBLE);
                         }
 
                         @Override
                         public void onError() {
-                            Log.e(FRAG_TAG, "Picasso error loading image");
+                            Log.e(TAG, "Picasso error loading image");
                         }
                     });
-
         }
         animateFacesIn();
         gameSession.startTimer();
@@ -302,34 +532,6 @@ public class GamePlayFragment extends Fragment {
         faceContainer.setClickable(true);
     }
 
-
-    /**
-     * A method to handle the back button pressed.
-     * Local onBackPressed method specific to this fragment
-     */
-    public void onBackPressed() {
-        Log.i(FRAG_TAG, "Back button was pressed");
-        //TODO: Display a warning menu and destroy this fragment
-        new AlertDialog.Builder(getActivity().getApplicationContext())
-                .setTitle("Quit game")
-                .setMessage("Are you sure you want to return to the menu?")
-                .setCancelable(false)
-                .setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //TODO: End this fragment
-                    }
-                })
-                .setNegativeButton("no", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
-                .show();
-
-    }
-
     /**
      * A custom click Listener class that handles clicks
      *  for any of the ImageViews
@@ -337,7 +539,8 @@ public class GamePlayFragment extends Fragment {
     private class MasterClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            Log.i(TAG, "15. Frames size " + frames.size());
+            switch (v.getId()) {
                 case R.id.face1:
                     onPersonSelected(v, personsInQuestion.get(0));
                     break;
@@ -354,15 +557,36 @@ public class GamePlayFragment extends Fragment {
                     onPersonSelected(v, personsInQuestion.get(4));
                     break;
                 default:
-                    Log.i(FRAG_TAG, "Nothing of value clicked");
+                    Log.i(TAG, "Nothing of value clicked");
                     break;
             }
         }
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i(TAG, "onSaveInstanceState called");
+        /* If onDestroyView() is called first, we can use the previously savedState but we can't call saveState() anymore */
+        /* If onSaveInstanceState() is called first, we don't have savedState, so we need to call saveState() */
+        /* => (?:) operator inevitable! */
+        outState.putBundle(savedGamePlayString, (savedState != null) ? savedState : saveState());
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.i(TAG, "onDestroyView called... calling saveState()");
+        savedState = saveState();
+        super.onDestroyView();
+    }
+
+    @Override
     public void onDestroy() {
+        Log.i(TAG, "OnDestory Called");
         repo.unregister(personRepoListener);
+        gameSession.cancelTimer();
+
         super.onDestroy();
     }
 
@@ -370,8 +594,12 @@ public class GamePlayFragment extends Fragment {
         return frames;
     }
 
-    public void setFrames(List<FrameLayout> frames) {
-        this.frames = frames;
+    public void setPersonsInQuestion(List<Person> personsInQuestion) {
+        this.personsInQuestion = personsInQuestion;
+    }
+
+    public void setAllPersons(List<Person> allPersons) {
+        this.allPersons = allPersons;
     }
 }
 

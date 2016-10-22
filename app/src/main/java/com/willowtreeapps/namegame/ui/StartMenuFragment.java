@@ -35,14 +35,31 @@ public class StartMenuFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Log.i(FRAG_TAG, "onCreate was called");
+        Log.i(FRAG_TAG, "onCreate was called");
+        if (getActivity()
+                .getSupportFragmentManager()
+                .findFragmentByTag("GamePlayFragTag") != null){
+
+            getActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container,
+                            getActivity()
+                            .getSupportFragmentManager()
+                            .findFragmentByTag("GamePlayFragTag"))
+                    .addToBackStack(null)
+                    .commit();
+        } else {
+            Log.i(FRAG_TAG, "Gameplayfrag was null");
+            Log.i(FRAG_TAG, getActivity().getSupportFragmentManager().getFragments().toString());
+        }
 
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        //Log.i(FRAG_TAG, "onCreateView was called");
+        Log.i(FRAG_TAG, "onCreateView was called");
         View view = inflater.inflate(R.layout.start_menu_fragment, container, false);
         ButterKnife.bind(this, view);
         return view;
@@ -50,7 +67,6 @@ public class StartMenuFragment extends Fragment {
 
     @OnClick({R.id.classicButton, R.id.mattButton, R.id.reverseButton, R.id.customButton})
     public void onClick(View view) {
-        Log.i(FRAG_TAG, "A button on the menu was selected. Fragment should be replaced.");
         switch (view.getId()) {
             case R.id.classicButton:
                 NameGameActivity.setGameMode(NameGameActivity.GameMode.CLASSIC);
@@ -65,8 +81,10 @@ public class StartMenuFragment extends Fragment {
                 NameGameActivity.setGameMode(NameGameActivity.GameMode.CUSTOM);
                 break;
         }
+        Log.i(FRAG_TAG, "On Click chosen mode: " + NameGameActivity.getGameMode().toString());
 
-        this.getFragmentManager().beginTransaction()
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
                 .replace(R.id.container, new GamePlayFragment(), "GamePlayFragTag")
                 .addToBackStack(null)
                 .commit();
@@ -74,18 +92,12 @@ public class StartMenuFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        //Log.i(FRAG_TAG, "onViewCreated was called");
+        Log.i(FRAG_TAG, "onViewCreated was called");
     }
 
     @Override
     public void onDestroy() {
-        //Log.i(FRAG_TAG, "onDestroyCalled");
-
+        Log.i(FRAG_TAG, "onDestroyCalled");
         super.onDestroy();
-    }
-
-    public void onBackPressed(){
-        //TODO: Implement
-        //Log.i(FRAG_TAG, "Back button was pressed");
     }
 }

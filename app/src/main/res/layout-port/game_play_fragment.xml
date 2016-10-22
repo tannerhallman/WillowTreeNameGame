@@ -45,7 +45,7 @@
                 android:textSize="25sp"
                 android:gravity="center_vertical|center_horizontal"
                 android:background="@drawable/roundedbutton"
-                android:textAlignment="textEnd"
+                android:layout_gravity="end"
                 android:layout_marginRight="5dp"
                 android:textColor="@color/colorPrimaryLight"
                 android:textStyle="normal|bold" />
@@ -76,8 +76,7 @@
                 android:gravity="center_vertical|center_horizontal"
                 android:background="@drawable/roundedbutton"
                 android:textStyle="normal|bold"
-                android:textColor="@color/colorPrimaryLight"
-                android:textAlignment="textEnd" />
+                android:textColor="@color/colorPrimaryLight" />
 
             <TextView
                 android:text="@string/secs"
@@ -136,7 +135,7 @@
                     android:id="@+id/face1"/>
 
                 <ProgressBar
-                    style="@android:style/Widget.Material.Light.ProgressBar"
+                    style="?android:attr/progressBarStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"

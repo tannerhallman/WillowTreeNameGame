@@ -14,7 +14,11 @@ public class Person implements Parcelable {
     }
 
     public String getName() {
-        return name.replaceAll("2","");
+        String n = name;
+        n = n.replaceAll("2", "");
+        n = n.replaceAll("3", "");
+        n = n.replaceAll("-", "");
+        return n;
     }
 
     public String getUrl() {

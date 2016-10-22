@@ -1,6 +1,8 @@
 package com.willowtreeapps.namegame.util;
 
 import android.os.CountDownTimer;
+import android.util.Log;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -20,7 +22,7 @@ public class GameSession {
     private int questionsAsked;
     private int questionsCorrect = 0;
 
-    private long countDownDuration = 30; // 30 seconds before all hints are showed
+    private long countDownDuration = 30000; // 30 seconds before all hints are showed
     private CountDownTimer countdownTimer;
     private long millisUntilFinished = 0;
 
@@ -36,8 +38,10 @@ public class GameSession {
 
     // this array list will hold 1, 2, 3, 4, 5
     // and items will be removed as they are faded out and made unclickable to user
-    //private List<Integer> facesNotYetFaded;
     private Stack<Integer> facesNotYetFaded = new Stack<>();
+
+    // keeps track of the state of faces so they can be restored easily
+    private ArrayList<Integer> facesAlreadyFaded = new ArrayList<>();
 
     GamePlayFragment gamePlayFragment;
 
@@ -47,22 +51,24 @@ public class GameSession {
      * The constructor for the GameState class
      */
     public GameSession(int faceCount, GamePlayFragment gamePlayFragment){
+        Log.i(TAG, "Starting a new game Session");
         this.faceCount = faceCount;
         this.gamePlayFragment = gamePlayFragment;
-        instantiateTimer();
+        instantiateTimer(countDownDuration);
     }
     /**
      * This method will instantiate the timer
      */
-    public void instantiateTimer(){
-        final int fadeGap = (int)countDownDuration / faceCount;
-
-        countdownTimer = new CountDownTimer(countDownDuration * 1000, 1000) {
+    public void instantiateTimer(long countDownDuration){
+        final int fadeGap = (int) (countDownDuration/1000) / faceCount;
+        countdownTimer = new CountDownTimer(countDownDuration, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 setMillisUntilFinished(millisUntilFinished);
-                if ( (millisUntilFinished/1000) % fadeGap == 0){
-                    fadeAFace();
+                if (millisUntilFinished != 0 && fadeGap != 0){
+                    if ((int) (millisUntilFinished/1000) % fadeGap == 0){
+                        fadeAFace();
+                    }
                 }
             }
 
@@ -99,7 +105,7 @@ public class GameSession {
     }
 
     public void updateAverage() {
-        double timeSpentInSeconds = (countDownDuration) - (millisUntilFinished / 1000);
+        double timeSpentInSeconds = (countDownDuration/1000) - (millisUntilFinished / 1000);
         if (getAverageTime() == 0){
             setAverageTime(timeSpentInSeconds);
         } else {
@@ -124,6 +130,7 @@ public class GameSession {
         try {
             // clears stack
             facesNotYetFaded.clear();
+            facesAlreadyFaded.clear();
 
             // creates a list of unique values 0 -> faceCount - 1
             ArrayList<Integer> tempList = new ArrayList<>(faceCount);
@@ -147,12 +154,28 @@ public class GameSession {
         }
     }
 
+    public void restoreSessionState() {
+        for (FrameLayout frameLayout : gamePlayFragment.getFrames()) {
+            frameLayout.getChildAt(0).setAlpha(1f);
+            frameLayout.getChildAt(0).setClickable(true);
+            frameLayout.getChildAt(1).setVisibility(View.GONE);
+        }
+
+        for (int alreadyFadedPos : facesAlreadyFaded) {
+            ImageView temp = (ImageView) gamePlayFragment.getFrames().get(alreadyFadedPos).getChildAt(0);
+            temp.setAlpha(0.2f);
+            temp.setClickable(false);
+        }
+
+    }
+
     /**
      * A method that fades a face and makes it unclickable
      */
     private void fadeAFace(){
         try {
             int actualFaceToFade = facesNotYetFaded.pop();
+            facesAlreadyFaded.add(actualFaceToFade);
             // In FrameLayout: index 0 = ImageView, index 1 = ProgressView
             ImageView temp = (ImageView) gamePlayFragment.getFrames().get(actualFaceToFade).getChildAt(0);
             temp.setAlpha(0.2f);
@@ -228,5 +251,21 @@ public class GameSession {
 
     public void setMillisUntilFinished(long millisUntilFinished) {
         this.millisUntilFinished = millisUntilFinished;
+    }
+
+    public Stack<Integer> getFacesNotYetFaded() {
+        return facesNotYetFaded;
+    }
+
+    public void setFacesNotYetFaded(Stack<Integer> facesNotYetFaded) {
+        this.facesNotYetFaded = facesNotYetFaded;
+    }
+
+    public ArrayList<Integer> getFacesAlreadyFaded() {
+        return facesAlreadyFaded;
+    }
+
+    public void setFacesAlreadyFaded(ArrayList<Integer> facesAlreadyFaded) {
+        this.facesAlreadyFaded = facesAlreadyFaded;
     }
 }
