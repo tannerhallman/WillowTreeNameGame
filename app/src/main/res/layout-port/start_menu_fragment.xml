@@ -88,8 +88,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/gameModeCustom"
-            android:id="@+id/customButton"
+            android:text="@string/gameModeInvincible"
+            android:id="@+id/invincibleButton"
             android:textColor="@color/colorPrimaryLight"
             android:textSize="20dp"
             android:textStyle="bold"

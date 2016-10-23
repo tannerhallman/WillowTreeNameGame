@@ -18,6 +18,7 @@ import java.util.Stack;
 
 public class GameSession {
     private double averageTime = 0;
+    private double totalTimeSeconds = 0;
     private int questionsAsked = 0;
     private int questionsCorrect = 0;
 
@@ -25,7 +26,7 @@ public class GameSession {
     private CountDownTimer countdownTimer;
     private long millisUntilFinished = 0;
 
-    private int currentRando;
+    private int currentRando; // represents the index of the person in question;
 
     private final String TAG = "GameSession";
 
@@ -42,6 +43,8 @@ public class GameSession {
 
     private Random random = new Random();
 
+    int fadeGap = 0;
+
     /**
      * The constructor for the GameState class
      */
@@ -49,20 +52,24 @@ public class GameSession {
         Log.i(TAG, "Starting a new game Session");
         this.faceCount = faceCount;
         this.gamePlayFragment = gamePlayFragment;
-        //this.setQuestionsAsked(1);
-        instantiateTimer(countDownDuration);
     }
 
     /**
      * This method will instantiate the timer
      */
-    public void instantiateTimer(long countDownDuration){
-        final int fadeGap = (int) (countDownDuration/1000) / faceCount;
+    public void instantiateTimer(final long countDownDuration){
+        Log.i(TAG, "Timer instantiated");
+        if (fadeGap == 0) { // fadeGap wasn't recovered after orientation change
+            fadeGap = (int) (countDownDuration/1000) / faceCount;
+        }
         countdownTimer = new CountDownTimer(countDownDuration, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
+                Log.i(TAG, "Mills " + Long.toString(millisUntilFinished)
+                        + " countdown " + Long.toString(countDownDuration));
                 setMillisUntilFinished(millisUntilFinished);
                 if (millisUntilFinished != 0 && fadeGap != 0){
+                    Log.i(TAG, Integer.toString((int) (millisUntilFinished/1000) % fadeGap));
                     if ((int) (millisUntilFinished/1000) % fadeGap == 0){
                         fadeAFace();
                     }
@@ -102,14 +109,23 @@ public class GameSession {
     /**
      * This method will update the Average time.
      */
-    public void updateAverage() {
-        double timeSpentInSeconds = (countDownDuration/1000) - (millisUntilFinished / 1000);
+    public void updateAverage(double timeToAdd) {
+        setTotalTimeSeconds(getTotalTimeSeconds() + timeToAdd);
+        double timeSpentInSeconds = getTimeSpent();
         if (getAverageTime() == 0){
             setAverageTime(timeSpentInSeconds);
         } else {
-            setAverageTime((getAverageTime() + (timeSpentInSeconds)) / 2);
+            setAverageTime((getTotalTimeSeconds() + timeSpentInSeconds) / questionsAsked);
         }
         millisUntilFinished = 0;
+    }
+
+    /**
+     * A method that returns the time spent on a question
+     * @return
+     */
+    public double getTimeSpent() {
+        return ((countDownDuration / 1000) - (millisUntilFinished / 1000));
     }
 
     /**
@@ -174,6 +190,7 @@ public class GameSession {
      * A method that fades a face and makes it unclickable
      */
     private void fadeAFace(){
+        Log.i(TAG, "Fading a face");
         try {
             int actualFaceToFade = facesNotYetFaded.pop();
             facesAlreadyFaded.add(actualFaceToFade);
@@ -252,5 +269,21 @@ public class GameSession {
 
     public void setFacesAlreadyFaded(ArrayList<Integer> facesAlreadyFaded) {
         this.facesAlreadyFaded = facesAlreadyFaded;
+    }
+
+    public int getFadeGap() {
+        return fadeGap;
+    }
+
+    public void setFadeGap(int fadeGap) {
+        this.fadeGap = fadeGap;
+    }
+
+    public double getTotalTimeSeconds() {
+        return totalTimeSeconds;
+    }
+
+    public void setTotalTimeSeconds(double totalTimeSeconds) {
+        this.totalTimeSeconds = totalTimeSeconds;
     }
 }

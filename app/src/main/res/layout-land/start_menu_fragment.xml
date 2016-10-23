@@ -106,16 +106,16 @@
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/roundedbutton"
                 android:padding="15dp"
-                android:layout_above="@+id/customButton"
-                android:layout_alignLeft="@+id/customButton"
-                android:layout_alignStart="@+id/customButton"
+                android:layout_above="@+id/invincibleButton"
+                android:layout_alignLeft="@+id/invincibleButton"
+                android:layout_alignStart="@+id/invincibleButton"
                 android:layout_margin="10dp" />
 
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/gameModeCustom"
-                android:id="@+id/customButton"
+                android:text="@string/gameModeInvincible"
+                android:id="@+id/invincibleButton"
                 android:textColor="@color/colorPrimaryLight"
                 android:textSize="20dp"
                 android:textStyle="bold"

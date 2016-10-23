@@ -7,7 +7,7 @@
     <string name="gameModeClassic">Classic Mode</string>
     <string name="gameModeMatt">Mat(t) Mode</string>
     <string name="gameModeReverse">Reverse Mode</string>
-    <string name="gameModeCustom">Custom Mode</string>
+    <string name="gameModeInvincible">Invincible Mode</string>
 
     <string name="placeholderTextShort">Text!</string>
     <string name="placeholderTextLong">This is some placeholder text!</string>

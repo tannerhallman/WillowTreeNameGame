@@ -3,7 +3,6 @@ package com.willowtreeapps.namegame.ui;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,24 +22,29 @@ import butterknife.OnClick;
 
 public class StartMenuFragment extends Fragment {
 
-    private final String FRAG_TAG = "StartMenuFragTag";
+    private final String TAG = "StartMenuFragTag";
 
     @BindView(R.id.appTitleTV) TextView appTitleTV;
     @BindView(R.id.imageView) ImageView imageView;
     @BindView(R.id.classicButton) Button classicButton;
     @BindView(R.id.mattButton) Button mattButton;
     @BindView(R.id.reverseButton) Button reverseButton;
-    @BindView(R.id.customButton) Button customButton;
+    @BindView(R.id.invincibleButton) Button invincibleButton;
 
+
+    /**
+     * A method that instantiates the menu
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(FRAG_TAG, "onCreate was called");
-        if (getActivity()
+        //Log.i(TAG, "onCreate was called");
+        if (getActivity() // if mid game, return to gameplay
                 .getSupportFragmentManager()
                 .findFragmentByTag("GamePlayFragTag") != null){
 
-            getActivity()
+            getActivity() //get the gameplay fragment
                     .getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container,
@@ -50,22 +54,32 @@ public class StartMenuFragment extends Fragment {
                     .addToBackStack(null)
                     .commit();
         } else {
-            Log.i(FRAG_TAG, "Gameplayfrag was null");
-            Log.i(FRAG_TAG, getActivity().getSupportFragmentManager().getFragments().toString());
+            //Log.i(TAG, getActivity().getSupportFragmentManager().getFragments().toString());
         }
-
     }
 
+    /**
+     * A method that inflates the view and
+     *  binds them with butterknife.
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.i(FRAG_TAG, "onCreateView was called");
+        //Log.i(TAG, "onCreateView was called");
         View view = inflater.inflate(R.layout.start_menu_fragment, container, false);
         ButterKnife.bind(this, view);
         return view;
     }
 
-    @OnClick({R.id.classicButton, R.id.mattButton, R.id.reverseButton, R.id.customButton})
+    /**
+     * A butterknife click listener for the menu buttons
+     * @param view
+     */
+    @OnClick({R.id.classicButton, R.id.mattButton, R.id.reverseButton, R.id.invincibleButton})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.classicButton:
@@ -77,11 +91,11 @@ public class StartMenuFragment extends Fragment {
             case R.id.reverseButton:
                 NameGameActivity.setGameMode(NameGameActivity.GameMode.REVERSE);
                 break;
-            case R.id.customButton:
-                NameGameActivity.setGameMode(NameGameActivity.GameMode.CUSTOM);
+            case R.id.invincibleButton:
+                NameGameActivity.setGameMode(NameGameActivity.GameMode.INVINCIBLE);
                 break;
         }
-        Log.i(FRAG_TAG, "On Click chosen mode: " + NameGameActivity.getGameMode().toString());
+        //Log.i(TAG, "On Click chosen mode: " + NameGameActivity.getGameMode().toString());
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
@@ -89,15 +103,15 @@ public class StartMenuFragment extends Fragment {
                 .addToBackStack(null)
                 .commit();
     }
-
+/*
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        Log.i(FRAG_TAG, "onViewCreated was called");
+        Log.i(TAG, "onViewCreated was called");
     }
 
     @Override
     public void onDestroy() {
-        Log.i(FRAG_TAG, "onDestroyCalled");
+        Log.i(TAG, "onDestroyCalled");
         super.onDestroy();
-    }
+    }*/
 }
