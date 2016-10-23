@@ -44,4 +44,5 @@ public class GameSessionTest {
         gameSession.instantiateTimer(1000);
         Assert.assertTrue("Timer should not be null", gameSession.getCountdownTimer() != null);
     }
+
 }
