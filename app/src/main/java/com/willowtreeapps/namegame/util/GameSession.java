@@ -111,7 +111,7 @@ public class GameSession {
      */
     public void updateAverage(double timeToAdd) {
         setTotalTimeSeconds(getTotalTimeSeconds() + timeToAdd);
-        double timeSpentInSeconds = getTimeSpent();
+        double timeSpentInSeconds = calculateTimeSpent();
         if (getAverageTime() == 0){
             setAverageTime(timeSpentInSeconds);
         } else {
@@ -124,7 +124,7 @@ public class GameSession {
      * A method that returns the time spent on a question
      * @return
      */
-    public double getTimeSpent() {
+    public double calculateTimeSpent() {
         return ((countDownDuration / 1000) - (millisUntilFinished / 1000));
     }
 
@@ -285,5 +285,13 @@ public class GameSession {
 
     public void setTotalTimeSeconds(double totalTimeSeconds) {
         this.totalTimeSeconds = totalTimeSeconds;
+    }
+
+    public CountDownTimer getCountdownTimer() {
+        return countdownTimer;
+    }
+
+    public void setCountdownTimer(CountDownTimer countdownTimer) {
+        this.countdownTimer = countdownTimer;
     }
 }
